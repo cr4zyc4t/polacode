@@ -41,6 +41,11 @@
   },
   "devDependencies": {
     "@types/node": "^11.12.0",
-    "@types/vscode": "^1.32.0"
+    "@types/vscode": "^1.32.0",
+    "vsce": "^1.59.0",
+    "vscode": "^1.1.33"
+  },
+  "scripts": {
+    "package": "vsce package"
   }
 }

@@ -1,4 +1,4 @@
-;(function() {
+; (function () {
   const vscode = acquireVsCodeApi()
 
   const snippetNode = document.getElementById('snippet')
@@ -48,9 +48,6 @@
     const b = (rgb >> 0) & 0xff
     return (r * 299 + g * 587 + b * 114) / 1000
   }
-  function isDark(hexColor) {
-    return getBrightness(hexColor) < 128
-  }
   function getSnippetBgColor(html) {
     return html.match(/background-color: (#[a-fA-F0-9]+)/)[1]
   }
@@ -59,12 +56,7 @@
     // update snippet bg color
     document.getElementById('snippet').style.backgroundColor = snippetBgColor
 
-    // update backdrop color
-    if (isDark(snippetBgColor)) {
-      snippetContainerNode.style.backgroundColor = '#f2f2f2'
-    } else {
-      snippetContainerNode.style.background = 'none'
-    }
+    snippetContainerNode.style.background = 'none'
   }
 
   function getMinIndent(code) {
@@ -102,7 +94,7 @@
     vscode.postMessage({
       type: 'updateBgColor',
       data: {
-        bgColor: snippetBgColor 
+        bgColor: snippetBgColor
       }
     })
     updateEnvironment(snippetBgColor)
@@ -168,13 +160,7 @@
         snippetNode.innerHTML = initialHtml
         vscode.setState({ innerHTML: initialHtml })
 
-        // update backdrop color, using bgColor from last pasted snippet
-        // cannot deduce from initialHtml since it's always using Nord color
-        if (isDark(bgColor)) {
-          snippetContainerNode.style.backgroundColor = '#f2f2f2'
-        } else {
-          snippetContainerNode.style.background = 'none'
-        }
+        snippetContainerNode.style.background = 'none'
 
       } else if (e.data.type === 'update') {
         document.execCommand('paste')
