@@ -1,6 +1,14 @@
 ; (function () {
   const vscode = acquireVsCodeApi()
 
+  let target = 'container'
+  let transparentBackground = true
+  let backgroundColor = '#f2f2f2'
+
+  vscode.postMessage({
+    type: 'getAndUpdateCacheAndSettings'
+  })
+
   const snippetNode = document.getElementById('snippet')
   const snippetContainerNode = document.getElementById('snippet-container')
   const obturateur = document.getElementById('save')
@@ -49,7 +57,8 @@
     return (r * 299 + g * 587 + b * 114) / 1000
   }
   function getSnippetBgColor(html) {
-    return html.match(/background-color: (#[a-fA-F0-9]+)/)[1]
+    const match = html.match(/background-color: (#[a-fA-F0-9]+)/)
+    return match ? match[1] : undefined;
   }
 
   function updateEnvironment(snippetBgColor) {
@@ -91,13 +100,15 @@
     const minIndent = getMinIndent(code)
 
     const snippetBgColor = getSnippetBgColor(innerHTML)
-    vscode.postMessage({
-      type: 'updateBgColor',
-      data: {
-        bgColor: snippetBgColor
-      }
-    })
-    updateEnvironment(snippetBgColor)
+    if (snippetBgColor) {
+      vscode.postMessage({
+        type: 'updateBgColor',
+        data: {
+          bgColor: snippetBgColor
+        }
+      })
+      updateEnvironment(snippetBgColor)
+    }
 
     if (minIndent !== 0) {
       snippetNode.innerHTML = stripInitialIndent(innerHTML, minIndent)
@@ -109,6 +120,14 @@
   })
 
   obturateur.addEventListener('click', () => {
+    if (target === 'container') {
+      shootAll() 
+    } else {
+      shootSnippet()
+    }
+  })
+
+  function shootAll() {
     const width = snippetContainerNode.offsetWidth * 2
     const height = snippetContainerNode.offsetHeight * 2
     const config = {
@@ -116,16 +135,50 @@
       height,
       style: {
         transform: 'scale(2)',
-        'transform-origin': 'left top'
+        'transform-origin': 'center',
+        background: getRgba(backgroundColor, transparentBackground)
       }
     }
 
+    // Hide resizer before capture
+    snippetNode.style.resize = 'none'
+    snippetContainerNode.style.resize = 'none'
+
     domtoimage.toBlob(snippetContainerNode, config).then(blob => {
+      snippetNode.style.resize = ''
+      snippetContainerNode.style.resize = ''
       serializeBlob(blob, serializedBlob => {
         shoot(serializedBlob)
       })
     })
-  })
+  }
+
+  function shootSnippet() {
+    const width = snippetNode.offsetWidth * 2
+    const height = snippetNode.offsetHeight * 2
+    const config = {
+      width,
+      height,
+      style: {
+        transform: 'scale(2)',
+        'transform-origin': 'center',
+        padding: 0,
+        background: 'none'
+      }
+    }
+
+    // Hide resizer before capture
+    snippetNode.style.resize = 'none'
+    snippetContainerNode.style.resize = 'none'
+
+    domtoimage.toBlob(snippetContainerNode, config).then(blob => {
+      snippetNode.style.resize = ''
+      snippetContainerNode.style.resize = ''
+      serializeBlob(blob, serializedBlob => {
+        shoot(serializedBlob)
+      })
+    })
+  }
 
   let isInAnimation = false
 
@@ -166,7 +219,30 @@
         document.execCommand('paste')
       } else if (e.data.type === 'restore') {
         snippetNode.innerHTML = e.data.innerHTML
+        updateEnvironment(e.data.bgColor)
+      } else if (e.data.type === 'restoreBgColor') {
+        updateEnvironment(e.data.bgColor)
+      } else if (e.data.type === 'updateSettings') {
+        snippetNode.style.boxShadow = e.data.shadow
+        target = e.data.target
+        transparentBackground = e.data.transparentBackground
+        snippetContainerNode.style.backgroundColor = e.data.backgroundColor
+        backgroundColor = e.data.backgroundColor
+        if (e.data.ligature) {
+          snippetNode.style.fontVariantLigatures = 'normal'
+        } else {
+          snippetNode.style.fontVariantLigatures = 'none'
+        }
       }
     }
   })
 })()
+
+function getRgba(hex, transparentBackground) {
+  const bigint = parseInt(hex.slice(1), 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  const a = transparentBackground ? 0 : 1
+  return `rgba(${r}, ${g}, ${b}, ${a})`
+}

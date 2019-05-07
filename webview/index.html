@@ -9,20 +9,40 @@
       box-sizing: border-box;
       padding-top: 32px;
     }
+    body {
+      display: flex;
+      flex-flow: column;
+      align-items: center;
+    }
 
     #snippet-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      resize: both;
       background-color: transparent;
-      padding: 22px;
       border-radius: 4px;
       opacity: 0;
       transition: opacity .4s;
+      width: calc(100% - 4rem);
+      padding: 22px;
     }
     #snippet {
+      overflow: hidden;
+      resize: both;
       display: flex;
       padding: 18px;
-      padding-bottom: 22px;
+      margin-top: 64px;
+      margin-bottom: 64px;
       border-radius: 5px;
-      box-shadow: rgba(0, 0, 0, 0.55) 0px 10px 55px;
+      box-shadow: rgba(0, 0, 0, 0.55) 0px 20px 68px;
+      width: calc(100% - 8rem);
+    }
+    #snippet > div {
+      max-width: 100%;
+      white-space: pre-wrap !important;
+      word-break: break-all;
     }
     #snippet > div > div {
       display: flex;
