@@ -1,5 +1,11 @@
 # Changelog
 
+### 0.3.0 | 2019-05-07
+
+- Major rewrite. See features in [#105](https://github.com/octref/polacode/pull/105).
+- Long token wrapping. Thanks to [OhYee](https://github.com/OhYee). [#104](https://github.com/octref/polacode/pull/104).
+- Improved vertical alignment of snippet. Thanks to [vxna](https://github.com/vxna). [#106](https://github.com/octref/polacode/pull/106).
+
 ### 0.2.2 | 2018-02-19
 
 - Remove "Pasted content is invalid" check. Will do proper HTML validation in [#30](https://github.com/octref/polacode/issues/30).
